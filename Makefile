@@ -7,7 +7,7 @@ INCLUDES = -I.
 
 OBJ_DIR = objs
 
-SRC = utils.c actions.c routine.c
+SRC = utils.c routine.c reaper.c
 
 
 OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)

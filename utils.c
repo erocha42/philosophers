@@ -6,7 +6,7 @@
 /*   By: erocha-- <erocha--@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 15:57:33 by erocha--          #+#    #+#             */
-/*   Updated: 2026/04/02 17:02:35 by erocha--         ###   ########.fr       */
+/*   Updated: 2026/04/09 12:57:13 by erocha--         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,13 @@ int	ft_isdigit(int c)
 	if (c < '0' || c > '9')
 		return (0);
 	return (1);
+}
+
+long long	get_time()
+{
+	struct timeval tv;
+
+	if (gettimeofday(&tv, NULL))
+		return (0);
+	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }

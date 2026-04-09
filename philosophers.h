@@ -6,7 +6,7 @@
 /*   By: erocha-- <erocha--@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 15:15:46 by erocha--          #+#    #+#             */
-/*   Updated: 2026/04/08 19:06:56 by erocha--         ###   ########.fr       */
+/*   Updated: 2026/04/09 15:02:05 by erocha--         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/time.h>
 
 typedef	struct s_data
 {
@@ -25,8 +26,11 @@ typedef	struct s_data
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
+	long long		start_time;
 	pthread_mutex_t	print_lock;
+	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	*forks;
+	int				end;
 }					t_data;
 
 typedef struct s_philosopher
@@ -35,11 +39,14 @@ typedef struct s_philosopher
 	pthread_t		tid;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t *r_fork;
+	long long		last_meal;
 	struct s_data	*data;
 }					t_philosopher;
 
-int		ft_atoi(const char *str);
-int		ft_isdigit(int c);
-void	*routine(void *arg);
+int			ft_atoi(const char *str);
+int			ft_isdigit(int c);
+long long	get_time();
+void		*routine(void *arg);
+void		*reaper(void *arg);
 
 #endif

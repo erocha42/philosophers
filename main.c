@@ -6,7 +6,7 @@
 /*   By: erocha-- <erocha--@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 15:14:34 by erocha--          #+#    #+#             */
-/*   Updated: 2026/04/08 19:03:21 by erocha--         ###   ########.fr       */
+/*   Updated: 2026/04/09 17:19:55 by erocha--         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static int	args_check(int argc, char **argv)
 		{
 			if (!ft_isdigit(argv[i][j]))
 			{
-				write(2, "An argument is not only digits", 31);
+				write(2, "An argument is not only digits or invalid\n", 43);
 				return (0);
 			}
 			j++;
@@ -56,6 +56,7 @@ static void	data_init(t_data *data, int argc, char **argv)
 		data->eating_each_philo = ft_atoi(argv[5]);
 	else
 		data->eating_each_philo = -1;
+	data->start_time = get_time();
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->number_of_philosophers);
 	while (i < data->number_of_philosophers)
 	{
@@ -63,6 +64,8 @@ static void	data_init(t_data *data, int argc, char **argv)
 		i++;
 	}
 	pthread_mutex_init(&data->print_lock, NULL);
+	pthread_mutex_init(&data->meal_lock, NULL);
+	data->end = 0;
 }
 
 static void	philos_init(t_philosopher *philos, t_data *data)
@@ -76,6 +79,7 @@ static void	philos_init(t_philosopher *philos, t_data *data)
 		philos[i].index = i + 1;
 		philos[i].l_fork = &data->forks[i];
 		philos[i].r_fork = &data->forks[(i + 1) % data->number_of_philosophers];
+		philos[i].last_meal = data->start_time;
 		i++;
 	}
 }
@@ -88,16 +92,24 @@ static void cleaning(t_philosopher *philos)
 	while (i < philos->data->number_of_philosophers)
 	{
 		pthread_join(philos[i].tid, NULL);
+		i++;
+	}
+	i = 0;
+	while (i < philos->data->number_of_philosophers)
+	{
 		pthread_mutex_destroy(&philos->data->forks[i]);
 		i++;
 	}
 	pthread_mutex_destroy(&philos->data->print_lock);
+	pthread_mutex_destroy(&philos->data->meal_lock);
+	free(philos->data->forks);
 	free(philos);
 }
 
 int	main(int argc, char **argv)
 {
 	t_philosopher	*philos;
+	pthread_t		monitor_id;
 	t_data			data;
 	int				i;
 
@@ -112,6 +124,8 @@ int	main(int argc, char **argv)
 		pthread_create(&philos[i].tid, NULL, routine, &philos[i]);
 		i++;
 	}
+	pthread_create(&monitor_id, NULL, reaper, philos);
+	pthread_join(monitor_id, NULL);
 	cleaning(philos);
 	return (0);
 }
