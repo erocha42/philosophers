@@ -6,7 +6,7 @@
 /*   By: erocha-- <erocha--@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 15:57:33 by erocha--          #+#    #+#             */
-/*   Updated: 2026/04/15 16:59:12 by erocha--         ###   ########.fr       */
+/*   Updated: 2026/04/28 16:28:29 by erocha--         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,11 @@ int	o_digits_checker(int argc, char **argv)
 	while (argv[i])
 	{
 		j = 0;
+		if (argv[i][0] == '\0')
+		{
+			write(2, "An argument is not only digits or invalid\n", 43);
+			return (0);
+		}
 		while (argv[i][j])
 		{
 			if (!ft_isdigit(argv[i][j]) || argv[1][0] == '0' ||

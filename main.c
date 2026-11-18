@@ -6,7 +6,7 @@
 /*   By: erocha-- <erocha--@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/02 15:14:34 by erocha--          #+#    #+#             */
-/*   Updated: 2026/04/15 16:56:47 by erocha--         ###   ########.fr       */
+/*   Updated: 2026/04/30 13:09:58 by erocha--         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,49 @@ static int	args_check(int argc, char **argv)
 	if (argc != 6 && argc != 5)
 	{
 		if (argc < 5)
-			write(2, "Philo requires 4 arguments minimum\n", 36);
+			write(2, "Philo requries 4 arguments minimum\n", 36);
 		else
 			write(2, "Too many arguments\n", 20);
 		return (0);
 	}
+	if (!argv[1])
+		return (1);
 	if (!o_digits_checker(argc, argv))
 		return (0);
 	return (1);
 }
 
-static void	data_init(t_data *data, int argc, char **argv)
+static void	cleaning(t_philosopher *philos)
+{
+	int	i;
+
+	i = 0;
+	if (!philos->data)
+	{
+		free(philos);
+		exit (1);
+	}
+	while (i < philos->data->nbr_of_philos)
+	{
+		pthread_join(philos[i].tid, NULL);
+		i++;
+	}
+	i = 0;
+	while (i < philos->data->nbr_of_philos)
+	{
+		pthread_mutex_destroy(&philos->data->forks[i]);
+		pthread_mutex_destroy(&philos[i].meal_lock);
+		i++;
+	}
+	pthread_mutex_destroy(&philos->data->print_lock);
+	pthread_mutex_destroy(&philos->data->end_lock);
+	free(philos->data->forks);
+	free(philos);
+	exit (0);
+}
+
+static void	data_init(t_philosopher *philos, t_data *data,
+	int argc, char **argv)
 {
 	int	i;
 
@@ -42,6 +74,8 @@ static void	data_init(t_data *data, int argc, char **argv)
 		data->eating_each_philo = -1;
 	data->start_time = get_time();
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->nbr_of_philos);
+	if (!data->forks)
+		cleaning(philos);
 	while (i < data->nbr_of_philos)
 	{
 		pthread_mutex_init(&data->forks[i], NULL);
@@ -69,29 +103,6 @@ static void	philos_init(t_philosopher *philos, t_data *data)
 	}
 }
 
-static void	cleaning(t_philosopher *philos)
-{
-	int	i;
-
-	i = 0;
-	while (i < philos->data->nbr_of_philos)
-	{
-		pthread_join(philos[i].tid, NULL);
-		i++;
-	}
-	i = 0;
-	while (i < philos->data->nbr_of_philos)
-	{
-		pthread_mutex_destroy(&philos->data->forks[i]);
-		pthread_mutex_destroy(&philos[i].meal_lock);
-		i++;
-	}
-	pthread_mutex_destroy(&philos->data->print_lock);
-	pthread_mutex_destroy(&philos->data->end_lock);
-	free(philos->data->forks);
-	free(philos);
-}
-
 int	main(int argc, char **argv)
 {
 	t_philosopher	*philos;
@@ -103,7 +114,9 @@ int	main(int argc, char **argv)
 	if (!args_check(argc, argv))
 		return (1);
 	philos = malloc(sizeof(t_philosopher) * ft_atoi(argv[1]));
-	data_init(&data, argc, argv);
+	if (!philos)
+		return (1);
+	data_init(philos, &data, argc, argv);
 	philos_init(philos, &data);
 	while (i < data.nbr_of_philos)
 	{

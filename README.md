@@ -19,12 +19,12 @@ The project uses a standard `Makefile` for compilation. From the project root, r
 ```bash
 make
 ```
-This will generate the `philosophers` executable.
+This will generate the `philo` executable.
 
 ### Execution
 The program accepts the following arguments:
 ```bash
-./philosophers [nbr_philos] [time_to_die] [time_to_eat] [time_to_sleep] [nbr_meals_opt]
+./philo [nbr_philos] [time_to_die] [time_to_eat] [time_to_sleep] [nbr_meals_opt]
 ```
 
 | Argument | Description |
@@ -37,7 +37,7 @@ The program accepts the following arguments:
 
 **Example:**
 ```bash
-./philosophers 5 800 200 200
+./philo 5 800 200 200
 ```
 
 ## Technical Choices
